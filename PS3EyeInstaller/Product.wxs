@@ -2,12 +2,18 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:iis="http://schemas.microsoft.com/wix/IIsExtension"
      xmlns:drv="http://schemas.microsoft.com/wix/DifxAppExtension">
-  <Product Id="*" Name="PS3 Eye Universal Driver" Language="1033" Version="1.0.1.0" Manufacturer="John Kevin Corcoran" UpgradeCode="560d5f3a-2039-4906-9dff-7cf25fe2b295">
+  <Product Id="*" 
+           Name="PS3 Eye Universal Driver Enhanced 1.0" 
+           Language="1033" 
+           Version="1.1.0.0" 
+           Manufacturer="John Kevin Corcoran , NV Riedel" 
+           UpgradeCode="560d5f3a-2039-4906-9dff-7cf25fe2b295">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+                  AllowSameVersionUpgrades ="yes"/>
     <MediaTemplate EmbedCab="yes" />
-
+    <WixVariable Id="WixUILicenseRtf" Value="test.rtf" />
     <UIRef Id="WixUI_Minimal" />
     
     <Property Id="CLEYEDRIVER">
@@ -72,7 +78,8 @@
     
     <DirectoryRef Id="INSTALLFOLDER2">
       <Component Id="Filter64Component" Win64="yes">
-        <File Id="fil75BB6DD4843E6077E97B38A26526B6F7" KeyPath="yes" Source="$(var.SolutionDir)/x64/Release/PS3EyeSourceFilter.dll" Name="PS3EyeSourceFilter64.dll">
+        <!--<File Id="fil75BB6DD4843E6077E97B38A26526B6F7" KeyPath="yes" Source="$(var.SolutionDir)/x64/Release/PS3EyeSourceFilter.dll" Name="PS3EyeSourceFilter64.dll">-->
+        <File Id="fil75BB6DD4843E6077E97B38A26526B6F7" KeyPath="yes" Source="$(var.SolutionDir)/x64/Debug/PS3EyeSourceFilter.dll" Name="PS3EyeSourceFilter64.dll">
           <Class Id="{B9ACDAE7-CEE5-4394-B10D-38EDB00CDB54}" Context="InprocServer32" Description="PS3 Eye Universal" ThreadingModel="both" />
         </File>
         <RegistryValue Root="HKCR" Key="CLSID\{860BB310-5D01-11D0-BD3B-00A0C911CE86}\Instance\PS3 Eye Universal" Name="FriendlyName" Value="PS3 Eye Universal" Type="string" Action="write" />
@@ -91,8 +98,9 @@
     </DirectoryRef>
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="Filter32Component">
-        <File Id="fil75BB6DD4843E6077E97B38A26526B6F8" KeyPath="yes" Source="$(var.SolutionDir)/Release/PS3EyeSourceFilter.dll">
-          <Class Id="{B9ACDAE7-CEE5-4394-B10D-38EDB00CDB54}" Context="InprocServer32" Description="PS3 Eye Universal" ThreadingModel="both" />
+        <!--<File Id="fil75BB6DD4843E6077E97B38A26526B6F8" KeyPath="yes" Source="$(var.SolutionDir)/Release/PS3EyeSourceFilter.dll">-->
+        <File Id="fil75BB6DD4843E6077E97B38A26526B6F8" KeyPath="yes" Source="$(var.SolutionDir)/Debug/PS3EyeSourceFilter.dll">
+        <Class Id="{B9ACDAE7-CEE5-4394-B10D-38EDB00CDB54}" Context="InprocServer32" Description="PS3 Eye Universal" ThreadingModel="both" />
         </File>
         <RegistryValue Root="HKCR" Key="CLSID\{860BB310-5D01-11D0-BD3B-00A0C911CE86}\Instance\PS3 Eye Universal" Name="FriendlyName" Value="PS3 Eye Universal" Type="string" Action="write" />
         <RegistryValue Root="HKCR" Key="CLSID\{860BB310-5D01-11D0-BD3B-00A0C911CE86}\Instance\PS3 Eye Universal" Name="CLSID" Value="{B9ACDAE7-CEE5-4394-B10D-38EDB00CDB54}" Type="string" Action="write" />

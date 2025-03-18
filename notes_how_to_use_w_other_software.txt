@@ -1,0 +1,28 @@
+project notes
+
+(b/g for wix installer: https://www.firegiant.com/wix/tutorial/getting-started/)
+
+start from scratch 
+	-> uninstall programs->Ps3 eye universal driver (gets rid of existing installation (files w/in c:/program files or program files(x86))
+	- rebuild pseEyeDriverMSVC (rebuilds three projects)
+	- separately rebuild 'PS3EyeInstaller' ... active config may need to be on 'Debug' in order to allow debugging...
+	- run PS3EyeInstaller.msi (go to D:\additional_programs\PS3EyeDirectShow\PS3EyeInstaller\bin\Debug or \Release)
+	- to debug, set a brakepoint, ie in PS3EyePushPin.cpp, onthreadcreate(), 
+start program which uses cameras, in the ps3eyedrivermsvc, Debug->attach to process... pick camera-using .exe
+
+
+interesting, cap_dshow.cpp line 1187 (3347, 3618)  ... cap.cpp line 203, 'opne(int cameranum..) ... sets device number, this is provided by line 990-991 in tracking code
+
+set fps PS3EyePushPin.cpp _GetMediaType , 
+		bitcompression - save cycle time going w/ compressed, ie png etc?
+		fps - increase here?
+
+Why does it seem to be going through get media type gather of info 3 times -- is it b/c showing 3 opengl windows? can I combine into 1 window?
+
+todo setup client / pipe code to adjust gain, exposure, white balance etc. 
+
+
+
+
+
+

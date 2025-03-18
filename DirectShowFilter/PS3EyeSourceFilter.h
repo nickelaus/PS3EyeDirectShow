@@ -3,6 +3,7 @@
 // Filter name strings
 #define g_ps3PS3EyeSource    L"PS3 Eye Universal"
 
+
 class PS3EyePushPin;
 
 class PS3EyePushPin : public CSourceStream, public IKsPropertySet, public IAMStreamConfig
@@ -13,10 +14,18 @@ protected:
 	HRESULT _GetMediaType(int iPosition, CMediaType *pMediaType);
 	REFERENCE_TIME _startTime;
 	IReferenceClock *_refClock;
+	int count = 0;
+	int brightness = 0;
+
+	static DWORD static_entry(LPVOID* param);
 
 public:
 	PS3EyePushPin(HRESULT *phr, CSource *pFilter, ps3eye::PS3EYECam::PS3EYERef device);
+	BOOL CloseHandleSafe(HANDLE& h);
+
 	~PS3EyePushPin();
+
+
 
 	DECLARE_IUNKNOWN
 
@@ -31,6 +40,16 @@ public:
 		}
 		return CSourceStream::NonDelegatingQueryInterface(riid, ppv);
 	}
+	void thread_func();
+	//DWORD WINAPI InstanceThread(LPVOID);
+	void WINAPI InstanceThread(LPVOID);
+	//HANDLE hPipe = INVALID_HANDLE_VALUE;
+	HANDLE hPipe = INVALID_HANDLE_VALUE;
+	VOID GetAnswerToRequest(LPTSTR, LPTSTR, LPDWORD);
+
+	std::vector <std::wstring> tokenizeWstring(std::wstring stringA, std::wstring delimeter);
+	std::tuple <std::wstring, double> getParamAndValue(std::wstring stringA);
+	bool compareWstrings(std::wstring stringA, std::wstring stringB);
 
 	HRESULT CheckMediaType(const CMediaType *);
 	HRESULT GetMediaType(int iPosition, CMediaType *pMediaType);
@@ -70,6 +89,11 @@ public:
 	virtual HRESULT __stdcall GetStreamCaps(int iIndex, AM_MEDIA_TYPE ** ppmt, BYTE * pSCC) override;
 
 };
+inline BOOL PS3EyePushPin::CloseHandleSafe(HANDLE& h)
+{
+	HANDLE tmp = h; h = NULL;
+	return tmp && tmp != INVALID_HANDLE_VALUE ? CloseHandle(tmp) : TRUE;
+}
 
 class PS3EyeSource : public CSource
 {
