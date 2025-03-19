@@ -1,3 +1,4 @@
+** nickelaus note - original branch documentation follows:
 # PS3EyeDirectShow
 Windows DirectShow source filter for the PS3 Eye Camera via WinUSB (32 / 64 bit)
 
@@ -21,7 +22,7 @@ Some examples of 64 bit DirectShow applications:
 - [VLC media player](https://www.videolan.org/vlc/)
 
 ## Installing
-
+(** Installation instructions for the original branch below ( details for this fork will follow soon)): 
 The easiest way to get started with this driver is to head to the [releases section](https://github.com/jkevin/PS3EyeDirectShow/releases) and download the installer. It will install the DirectShow filters as well as a generic WinUSB driver. If it detects that the Code Laboratories driver is already installed it will only install a 64 bit DirectShow filter. The driver component provided by Code Laboratories is WinUSB compatible so there isn't any need to install another one.
 
 ## Compiling From Source
@@ -50,3 +51,105 @@ To build the installer, first build the 32 and 64 bit release configurations of 
 ## TODO
 - Manual exposure and white balance controls
 - Windows Media Foundation source?
+
+## nickelaus fork differences
+ - Camera adjustements (gain, contrast, sharpness, auto white balance) can be made by named pipe.
+   Example code for setting contrast to max (255) shown below:
+
+  		int contrast = 255;
+		parameterNameValue += L"contrast: ";
+		parameterNameValue += std::to_wstring(contrast);
+		const wchar_t* data = parameterNameValue.c_str();
+
+		std::cout << "Connecting to pipe..." << std::endl;
+		//calibrate camera params
+		DWORD cbRead;
+		TCHAR  chBuf[BUFSIZE];
+
+		LPCTSTR lpszPipename = TEXT("\\\\.\\pipe\\my_pipe");
+		while (true)
+		{
+			pipe = CreateFile(
+				lpszPipename,
+				GENERIC_READ | GENERIC_WRITE,
+				0,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				NULL
+			);
+			// break if  the pipe handle is valid
+			if (pipe != INVALID_HANDLE_VALUE) {
+				break;
+			}
+			// Exit if an error other than ERROR_PIPE_BUSY occurs. 
+
+			if (GetLastError() != ERROR_PIPE_BUSY)
+			{
+				printf(("Could not open pipe. GLE=%d\n"), GetLastError());
+				return -1;
+			}
+
+			// All pipe instances are busy, so wait for 20 seconds. 
+
+			if (!WaitNamedPipe(lpszPipename, 20000))
+			{
+				printf("Could not open pipe: 20 second wait timed out.");
+				return -1;
+			}
+
+		}
+		std::cout << "outside while loop" << std::endl;
+		DWORD numBytesWritten = 0;
+
+		BOOL result = WriteFile(
+			pipe, // handle to our outbound pipe
+			data, // data to send
+			wcslen(data) * sizeof(wchar_t), // length of data to send (bytes)
+			&numBytesWritten, // will store actual amount of data sent
+			NULL // not using overlapped IO
+		);
+
+		if (result) {
+			std::wcout << "Number of bytes sent: " << numBytesWritten << std::endl;
+		}
+		else {
+			std::wcout << "Failed to send data." << std::endl;
+			printf("WriteFile to pipe failed. GLE=%d\n", GetLastError());
+			// look up error code here using GetLastError()
+		}
+
+		std::wcout << "Reading data from pipe..." << std::endl;
+		// The read operation will block until there is data to read
+		wchar_t buffer[128];
+		DWORD numBytesRead = 0;
+		result;
+		do
+		{
+			result = ReadFile(
+				pipe,
+				chBuf, // the data from the pipe will be put here
+				//127 * sizeof(wchar_t), // number of bytes allocated
+				BUFSIZE * sizeof(TCHAR),  // size of buffer 
+				&cbRead, // this will store number of bytes actually read
+				NULL // not using overlapped IO
+			);
+			if (!result && GetLastError() != ERROR_MORE_DATA) {
+				break;
+			}
+			_tprintf(TEXT("\"%s\"\n"), chBuf);
+		} while (!result); //repeat loop if ERROR_MORE_DATA 
+		if (!result) //|| numBytesRead == 0) {
+		{
+			//printf("SetNamedPipeHandleState failed. GLE=%d\n", GetLastError());
+			_tprintf(TEXT("ReadFile from pipe failed. GLE=%d\n"), GetLastError());
+			//CloseHandle(pipe);
+			return -1;
+		}
+		printf("\n<End of message/n");// , press ENTER to terminate connection and exit > / n");
+		//system("pause");
+		// Close our pipe handle
+		
+		CloseHandle(pipe);
+		pipeClosed = true;
+		std::wcout << "Done." << std::endl;
